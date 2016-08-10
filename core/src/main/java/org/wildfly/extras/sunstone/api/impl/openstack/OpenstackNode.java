@@ -117,10 +117,16 @@ public class OpenstackNode extends AbstractJCloudsNode<OpenstackCloudProvider> {
             String publicAddress = Iterables.getFirst(initialNodeMetadata.getPublicAddresses(), null);
             LOGGER.info("Started {} node '{}' from image {}, its public IP address is {}",
                     cloudProvider.getCloudProviderType().getHumanReadableName(), name, imageName, publicAddress);
-            waitForStartPorts();
         } catch (RunNodesException e) {
             throw new RuntimeException("Unable to create " + cloudProvider.getCloudProviderType().getHumanReadableName()
                     + " node from template " + template, e);
+        }
+
+        try {
+            waitForStartPorts();
+        } catch (Exception e) {
+            this.close();
+            throw e;
         }
     }
 
