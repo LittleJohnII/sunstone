@@ -4,17 +4,13 @@ import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.wildfly.extras.sunstone.api.CloudProperties;
 import org.wildfly.extras.sunstone.api.CloudProvider;
 import org.wildfly.extras.sunstone.api.impl.AbstractJCloudsCloudProvider;
-import org.wildfly.extras.sunstone.api.impl.SunstoneCoreLogger;
 
 import java.util.Optional;
 
 public class NodeLeakOnBadPortsTest {
-
-    private static final Logger LOGGER = SunstoneCoreLogger.DEFAULT;
 
     @Test
     public void test() {
