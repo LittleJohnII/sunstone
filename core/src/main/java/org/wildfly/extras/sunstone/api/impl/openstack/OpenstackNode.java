@@ -125,7 +125,9 @@ public class OpenstackNode extends AbstractJCloudsNode<OpenstackCloudProvider> {
         try {
             waitForStartPorts();
         } catch (Exception e) {
-            this.close();
+            if (!objectProperties.getPropertyAsBoolean(Config.LEAVE_NODES_RUNNING, false)) {
+                computeService.destroyNode(initialNodeMetadata.getId());
+            }
             throw e;
         }
     }

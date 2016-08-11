@@ -105,14 +105,18 @@ public class AzureNode extends AbstractJCloudsNode<AzureCloudProvider> {
         try {
             waitForPorts(timeout, 22);
         } catch (Exception e) {
-            this.close();
+            if (!objectProperties.getPropertyAsBoolean(Config.LEAVE_NODES_RUNNING, false)) {
+                computeService.destroyNode(initialNodeMetadata.getId());
+            }
             throw e;
         }
 
         try {
             executeOnBootScript(objectProperties);
         } catch (InterruptedException | IOException | IllegalArgumentException e) {
-            this.close(); // no leaking!
+            if (!objectProperties.getPropertyAsBoolean(Config.LEAVE_NODES_RUNNING, false)) {
+                computeService.destroyNode(initialNodeMetadata.getId());
+            }
             throw new RuntimeException("Unable to execute on boot script on node " + name, e);
         }
 
