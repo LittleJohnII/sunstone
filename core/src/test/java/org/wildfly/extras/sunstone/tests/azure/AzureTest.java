@@ -2,19 +2,17 @@ package org.wildfly.extras.sunstone.tests.azure;
 
 import static org.junit.Assume.assumeFalse;
 
-import java.io.IOException;
 import java.util.Map;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
 import org.wildfly.extras.sunstone.api.CloudProviderType;
 import org.wildfly.extras.sunstone.tests.AbstractCloudProviderTest;
 import org.wildfly.extras.sunstone.tests.TestedCloudProvider;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-
 public class AzureTest extends AbstractCloudProviderTest {
-    public AzureTest() throws IOException {
+    public AzureTest() {
         super(AZURE);
     }
 

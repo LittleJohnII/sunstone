@@ -1,5 +1,9 @@
 package org.wildfly.extras.sunstone.tests.azurearm;
 
+import static org.junit.Assume.assumeFalse;
+
+import java.util.Map;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
@@ -7,13 +11,8 @@ import org.wildfly.extras.sunstone.api.CloudProviderType;
 import org.wildfly.extras.sunstone.tests.AbstractCloudProviderTest;
 import org.wildfly.extras.sunstone.tests.TestedCloudProvider;
 
-import java.io.IOException;
-import java.util.Map;
-
-import static org.junit.Assume.assumeFalse;
-
 public class AzureArmTest extends AbstractCloudProviderTest {
-    public AzureArmTest() throws IOException {
+    public AzureArmTest() {
         super(AZURE_ARM);
     }
 

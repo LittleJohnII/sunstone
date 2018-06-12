@@ -10,6 +10,7 @@ public enum CloudProviderType {
     AZURE_ARM("azure-arm", "Microsoft Azure (ARM)"),
     OPENSTACK("openstack", "OpenStack"),
     BARE_METAL("baremetal", "Bare Metal"),
+    OPENSHIFT("openshift", "OpenShift")
     ;
 
     private final String label;

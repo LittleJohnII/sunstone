@@ -26,7 +26,7 @@ import com.google.common.io.Resources;
 /**
  * Object which holds an {@link ObjectPropertiesType}, a name and object properties.
  *
- * TODO: better documentation for this class, there are many public methods which are not intuitive and may not be meant to used by public
+ * TODO: better documentation for this class, there are many public methods which are not intuitive and may not be meant to be used by public
  * TODO: e.g. applyOverrides, applyMissing, getArray
  */
 public class ObjectProperties implements ConfigProperties {

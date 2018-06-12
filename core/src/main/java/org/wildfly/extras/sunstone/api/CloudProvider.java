@@ -16,6 +16,7 @@ import org.wildfly.extras.sunstone.api.impl.azurearm.AzureArmCloudProvider;
 import org.wildfly.extras.sunstone.api.impl.baremetal.BareMetalCloudProvider;
 import org.wildfly.extras.sunstone.api.impl.docker.DockerCloudProvider;
 import org.wildfly.extras.sunstone.api.impl.ec2.EC2CloudProvider;
+import org.wildfly.extras.sunstone.api.impl.openshift.OpenShiftCloudProvider;
 import org.wildfly.extras.sunstone.api.impl.openstack.OpenstackCloudProvider;
 
 /**
@@ -160,6 +161,8 @@ public interface CloudProvider extends AutoCloseable {
                 return new OpenstackCloudProvider(providerName, overrideMap);
             case BARE_METAL:
                 return new BareMetalCloudProvider(providerName, overrideMap);
+            case OPENSHIFT:
+                return new OpenShiftCloudProvider(providerName, overrideMap);
             default:
                 throw new IllegalArgumentException("Unknown cloud provider type: " + type);
         }

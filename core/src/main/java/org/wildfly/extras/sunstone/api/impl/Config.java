@@ -113,10 +113,21 @@ public final class Config {
         }
 
         /**
-         * Bare metal cloud provider related keys.  When changing, don't forget to change {@code baremetal-README.md}.
+         * Bare metal cloud provider related keys. When changing, don't forget to change {@code baremetal-README.md}.
          */
         public static final class BareMetal {
             public static final String NODES = "baremetal.nodes";
+        }
+
+        /**
+         * OpenShift cloud provider related keys. When changing, don't forget to change {@code openshift-README.md}.
+         */
+        public static final class OpenShift {
+            public static final String API_VERSION = "openshift.api-version";
+            public static final String AUTHORIZATION_TOKEN = "openshift.auth-token";
+            public static final String BASE_URL = "openshift.base-url";
+            public static final String PASSWORD = "openshift.password";
+            public static final String USERNAME = "openshift.username";
         }
     }
 
@@ -266,6 +277,19 @@ public final class Config {
             public static final String SSH_PASSWORD = "baremetal.ssh.password";
             public static final String SSH_PRIVATE_KEY = "baremetal.ssh.privateKey";
             public static final String SSH_PRIVATE_KEY_FILE = "baremetal.ssh.privateKeyFile";
+        }
+
+        /**
+         * Configuration keys for OpenShift nodes (pods). When changing, don't forget to change {@code openshift-README.md}.
+         */
+        public static final class OpenShift {
+            public static final String CONTAINER_IMAGE = "openshift.container.image";
+            public static final String CONTAINER_NAME = "openshift.container.name";
+            public static final String POD_NAME = "openshift.pod.name";
+            public static final String PROJECT = "openshift.project";
+            public static final String PROJECT_CREATE = "openshift.project.create";
+            public static final String PROJECT_DESTROY = "openshift.project.destroy";
+            public static final String SERVICE_ACCOUNT_SECRETS_TIMEOUT = "openshift.service-account.secrets.timeout";
         }
     }
 

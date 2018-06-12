@@ -1,6 +1,5 @@
 package org.wildfly.extras.sunstone.tests.baremetal;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.junit.AfterClass;
@@ -18,7 +17,7 @@ public class BareMetalTest extends AbstractCloudProviderTest {
     private static CloudProvider dockerProvider;
     private static CreatedNodes dockerNodes;
 
-    public BareMetalTest() throws IOException {
+    public BareMetalTest() {
         super(BARE_METAL);
     }
 

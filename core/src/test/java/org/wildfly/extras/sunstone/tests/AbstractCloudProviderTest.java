@@ -71,7 +71,7 @@ public abstract class AbstractCloudProviderTest {
     }
 
     @Before
-    public final void setUp() throws IOException {
+    public final void setUp() {
         CloudProperties.getInstance().reset().load(this.getClass());
     }
 

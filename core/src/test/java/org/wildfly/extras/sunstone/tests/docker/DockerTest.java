@@ -1,16 +1,14 @@
 package org.wildfly.extras.sunstone.tests.docker;
 
-import java.io.IOException;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.wildfly.extras.sunstone.api.CloudProviderType;
 import org.wildfly.extras.sunstone.tests.AbstractCloudProviderTest;
 import org.wildfly.extras.sunstone.tests.TestedCloudProvider;
 
-import com.google.common.collect.ImmutableMap;
-
 public class DockerTest extends AbstractCloudProviderTest {
-    public DockerTest() throws IOException {
+    public DockerTest() {
         super(DOCKER);
     }
 

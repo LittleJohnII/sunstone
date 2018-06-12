@@ -1,5 +1,9 @@
 package org.wildfly.extras.sunstone.tests.azure;
 
+import static org.junit.Assume.assumeFalse;
+
+import java.io.IOException;
+
 import com.google.common.base.Strings;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -7,10 +11,6 @@ import org.junit.Test;
 import org.wildfly.extras.sunstone.api.CloudProperties;
 import org.wildfly.extras.sunstone.api.CloudProvider;
 import org.wildfly.extras.sunstone.api.Node;
-
-import java.io.IOException;
-
-import static org.junit.Assume.assumeFalse;
 
 /**
  * Asserts that two nodes join a single common subnet and can ping each other on their private interface.
@@ -29,7 +29,7 @@ public class AzureSubnetTest {
     }
 
     @Before
-    public final void setUp() throws IOException {
+    public final void setUp() {
         CloudProperties.getInstance().reset().load(this.getClass());
     }
 

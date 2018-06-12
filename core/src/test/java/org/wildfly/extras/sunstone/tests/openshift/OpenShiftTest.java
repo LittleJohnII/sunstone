@@ -1,32 +1,31 @@
-package org.wildfly.extras.sunstone.tests.openstack;
+package org.wildfly.extras.sunstone.tests.openshift;
 
 import static org.junit.Assume.assumeFalse;
 
+import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
 import org.wildfly.extras.sunstone.api.CloudProviderType;
+import org.wildfly.extras.sunstone.api.impl.Config;
 import org.wildfly.extras.sunstone.tests.AbstractCloudProviderTest;
 import org.wildfly.extras.sunstone.tests.TestedCloudProvider;
 
-public class OpenstackTest extends AbstractCloudProviderTest {
-    public OpenstackTest() {
-        super(OPENSTACK);
+public class OpenShiftTest extends AbstractCloudProviderTest {
+    public OpenShiftTest() {
+        super(OpenShiftTCP);
     }
 
     @BeforeClass
-    public static void beforeClass() {
-        assumeFalse(Strings.isNullOrEmpty(System.getProperty("openstack.endpoint")));
-        assumeFalse(Strings.isNullOrEmpty(System.getProperty("openstack.username")));
-        assumeFalse(Strings.isNullOrEmpty(System.getProperty("openstack.password")));
+    public static void setUpClass() {
+        assumeFalse(Strings.isNullOrEmpty(System.getProperty("openshift.base-url")));
     }
 
-    private static final TestedCloudProvider OPENSTACK = new TestedCloudProvider() {
+    private static final TestedCloudProvider OpenShiftTCP = new TestedCloudProvider() {
         @Override
         public CloudProviderType type() {
-            return CloudProviderType.OPENSTACK;
+            return CloudProviderType.OPENSHIFT;
         }
 
         @Override
@@ -36,7 +35,7 @@ public class OpenstackTest extends AbstractCloudProviderTest {
 
         @Override
         public boolean hasPortMapping() {
-            return false;
+            return true;
         }
 
         @Override
@@ -61,7 +60,8 @@ public class OpenstackTest extends AbstractCloudProviderTest {
 
         @Override
         public Map<String, String> overridesThatPreventCreatingNode() {
-            return ImmutableMap.of("openstack.username", "INVALID-USER");
+            return Collections.singletonMap(Config.CloudProvider.OpenShift.PASSWORD, "");
+            // beware - on default Minishift config, any password and any username, except "", is accepted!
         }
     };
 }

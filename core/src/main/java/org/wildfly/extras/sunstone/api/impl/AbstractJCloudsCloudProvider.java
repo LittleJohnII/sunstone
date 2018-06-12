@@ -1,48 +1,38 @@
 package org.wildfly.extras.sunstone.api.impl;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.util.OpenSocketFinder;
 import org.slf4j.Logger;
 import org.wildfly.extras.sunstone.api.CloudProviderType;
 import org.wildfly.extras.sunstone.api.ConfigProperties;
-import org.wildfly.extras.sunstone.api.CreatedNodes;
 import org.wildfly.extras.sunstone.api.Node;
 import org.wildfly.extras.sunstone.api.jclouds.JCloudsCloudProvider;
 import org.wildfly.extras.sunstone.api.jclouds.JCloudsNode;
 
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-
 /**
- * Abstract {@link JCloudsCloudProvider} implementation which holds common logic.
- *
+ * Abstract {@link JCloudsCloudProvider} implementation which holds common logic. Assumes the underlying implementation
+ * is based on JClouds.
  */
-public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvider {
+public abstract class AbstractJCloudsCloudProvider extends AbstractBasicCloudProvider implements JCloudsCloudProvider {
     private static final Logger LOGGER = SunstoneCoreLogger.DEFAULT;
 
     protected final CloudProviderType cloudProviderType;
-    protected final ObjectProperties objectProperties;
     protected final ComputeServiceContext computeServiceContext;
     protected final OpenSocketFinder socketFinder;
     protected final Injector guiceInjector;
 
+    // overrides the nodes field at AbstractBasicCloudProvider, since this one holds JCloudsNode
     private final ConcurrentMap<String, JCloudsNode> nodes = new ConcurrentHashMap<>();
 
     /**
@@ -54,10 +44,9 @@ public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvid
      */
     public AbstractJCloudsCloudProvider(String name, CloudProviderType cloudProviderType, Map<String, String> overrides,
                                         Function<ObjectProperties, ContextBuilder> contextBuilderCreator) {
-        Objects.requireNonNull(name, "Cloud provider name has to be provided.");
+        super(name, overrides);
 
         this.cloudProviderType = cloudProviderType;
-        this.objectProperties = new ObjectProperties(ObjectType.CLOUD_PROVIDER, name, overrides);
 
         LOGGER.debug("Creating {} ComputeServiceContext", cloudProviderType.getHumanReadableName());
         ContextBuilder contextBuilder = contextBuilderCreator.apply(objectProperties);
@@ -68,19 +57,10 @@ public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvid
         LOGGER.info("Started {} cloud provider '{}'", cloudProviderType.getHumanReadableName(), name);
     }
 
-    @Override
-    public final String getName() {
-        return objectProperties.getName();
-    }
 
     @Override
     public final CloudProviderType getCloudProviderType() {
         return cloudProviderType;
-    }
-
-    @Override
-    public final JCloudsNode createNode(String name) {
-        return createNode(name, null);
     }
 
     @Override
@@ -92,7 +72,7 @@ public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvid
         // old = nodes.putIfAbsent(name, DUMMY_VALUE)
         // if (old != null) ... node with this name already exists ...
         // nodes.put(name, createNodeInternal(name, overrides))
-        JCloudsNode node = nodes.compute(name, (k, v) -> {
+        return nodes.compute(name, (k, v) -> {
             if (v != null) {
                 throw new IllegalArgumentException("There already exist node with given name \"" + k + "\"; "
                         + "You are not allowed to create two nodes with the same name under same provider");
@@ -102,7 +82,7 @@ public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvid
                 try {
                     createdNode.handleBootScript();
                     createdNode.waitForStartPorts(null);
-                    LOGGER.debug("Node '{}' is succesfully started", createdNode.getName());
+                    LOGGER.debug("Node '{}' is successfully started", createdNode.getName());
                 } catch (Exception e) {
                     if (nodeRequiresDestroy()) {
                         computeServiceContext.getComputeService().destroyNode(createdNode.getInitialNodeMetadata().getId());
@@ -117,59 +97,6 @@ public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvid
                 return createdNode;
             }
         });
-        return node;
-    }
-
-    @Override
-    public final CreatedNodes createNodes(String... nodeNames)
-            throws NullPointerException, CompletionException, CancellationException {
-        Objects.requireNonNull(nodeNames, "Node names have to be provided.");
-        Arrays.stream(nodeNames).forEach(it -> Objects.requireNonNull(it, "Each node name must be not null"));
-        CompletableFuture<Node>[] futures = Arrays.stream(nodeNames)
-                .map(this::createNodeAsync)
-                .toArray((IntFunction<CompletableFuture<Node>[]>) CompletableFuture[]::new);
-
-        try {
-            return new CreatedNodes(Arrays.stream(futures)
-                    .map(CompletableFuture::join)
-                    .collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOGGER.warn("Encountered exception while creating nodes => taking care of cleaning remaining nodes " +
-                    "which might take a while please be patient");
-            for (CompletableFuture<Node> future : futures) {
-                if (!future.isCompletedExceptionally()) {
-                    try {
-                        @SuppressWarnings("resource")
-                        Node node = future.join();
-                        node.close();
-                    } catch (Exception e2) {
-                        e.addSuppressed(e2);
-                    }
-                }
-            }
-            throw e;
-        }
-    }
-
-    @Override
-    public CompletableFuture<Node> createNodeAsync(String name) {
-        return createNodeAsync(name, null, ForkJoinPool.commonPool());
-    }
-
-    @Override
-    public CompletableFuture<Node> createNodeAsync(String name, Executor executor) {
-        return createNodeAsync(name, null, executor);
-    }
-
-    @Override
-    public CompletableFuture<Node> createNodeAsync(String name, Map<String, String> overrides) {
-        return createNodeAsync(name, overrides, ForkJoinPool.commonPool());
-    }
-
-    @Override
-    public CompletableFuture<Node> createNodeAsync(String name, Map<String, String> overrides, Executor executor)
-            throws NullPointerException {
-        return CompletableFuture.supplyAsync(() -> createNode(name, overrides), executor);
     }
 
     protected abstract JCloudsNode createNodeInternal(String name, Map<String, String> overrides);
@@ -183,11 +110,6 @@ public abstract class AbstractJCloudsCloudProvider implements JCloudsCloudProvid
     @Override
     public final List<Node> getNodes() {
         return ImmutableList.copyOf(nodes.values());
-    }
-
-    @Override
-    public final ConfigProperties config() {
-        return objectProperties;
     }
 
     final void destroyNode(JCloudsNode node) {

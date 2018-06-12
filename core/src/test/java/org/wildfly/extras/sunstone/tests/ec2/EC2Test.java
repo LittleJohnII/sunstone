@@ -2,19 +2,17 @@ package org.wildfly.extras.sunstone.tests.ec2;
 
 import static org.junit.Assume.assumeFalse;
 
-import java.io.IOException;
 import java.util.Map;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
 import org.wildfly.extras.sunstone.api.CloudProviderType;
 import org.wildfly.extras.sunstone.tests.AbstractCloudProviderTest;
 import org.wildfly.extras.sunstone.tests.TestedCloudProvider;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-
 public class EC2Test extends AbstractCloudProviderTest {
-    public EC2Test() throws IOException {
+    public EC2Test() {
         super(EC2);
     }
 
